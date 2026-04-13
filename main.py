@@ -143,7 +143,6 @@ def get_video_analytics(access_token, video_id, publish_date, end_date):
             "endDate":    end_date.isoformat(),
             "metrics":    "impressions,impressionsClickThroughRate",
             "filters":    f"video=={video_id}",
-            "dimensions": "video",
         }
     )
     impressions_resp.raise_for_status()
@@ -153,8 +152,8 @@ def get_video_analytics(access_token, video_id, publish_date, end_date):
     ctr = 0.0
     imp_rows = impressions_data.get("rows", [])
     if imp_rows:
-        impressions = int(imp_rows[0][1])
-        ctr         = round(float(imp_rows[0][2]) * 100, 2)  # convert to %
+        impressions = int(imp_rows[0][0])
+        ctr         = round(float(imp_rows[0][1]) * 100, 2)  # convert to %
 
     return {
         "views":               views,
