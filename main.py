@@ -131,29 +131,29 @@ def get_video_analytics(access_token, video_id, publish_date, end_date):
         views      = int(rows[0][1])
         watch_time = int(rows[0][2])
 
-    # Impressions and CTR from YouTube Data API (video statistics)
-    # Note: Impressions/CTR require the YouTube Studio scope or
-    # are available via the search impressions report
-    impressions_resp = requests.get(
-        "https://youtubeanalytics.googleapis.com/v2/reports",
-        headers=headers,
-        params={
-            "ids":        f"channel=={YOUTUBE_CHANNEL_ID}",
-            "startDate":  publish_date.isoformat(),
-            "endDate":    end_date.isoformat(),
-            "metrics":    "impressions,impressionsClickThroughRate",
-            "filters":    f"video=={video_id}",
-        }
-    )
-    impressions_resp.raise_for_status()
-    impressions_data = impressions_resp.json()
-
+    # Impressions and CTR — not always available at the individual video level;
+    # wrap in try/except so views/watch-time snapshots still get written on failure.
     impressions = 0
     ctr = 0.0
-    imp_rows = impressions_data.get("rows", [])
-    if imp_rows:
-        impressions = int(imp_rows[0][0])
-        ctr         = round(float(imp_rows[0][1]) * 100, 2)  # convert to %
+    try:
+        impressions_resp = requests.get(
+            "https://youtubeanalytics.googleapis.com/v2/reports",
+            headers=headers,
+            params={
+                "ids":        f"channel=={YOUTUBE_CHANNEL_ID}",
+                "startDate":  publish_date.isoformat(),
+                "endDate":    end_date.isoformat(),
+                "metrics":    "impressions,impressionsClickThroughRate",
+                "filters":    f"video=={video_id}",
+            }
+        )
+        impressions_resp.raise_for_status()
+        imp_rows = impressions_resp.json().get("rows", [])
+        if imp_rows:
+            impressions = int(imp_rows[0][0])
+            ctr         = round(float(imp_rows[0][1]) * 100, 2)  # convert to %
+    except Exception:
+        pass  # impressions not available at the individual video level
 
     return {
         "views":               views,
