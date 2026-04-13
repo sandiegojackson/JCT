@@ -152,8 +152,13 @@ def get_video_analytics(access_token, video_id, publish_date, end_date):
         if imp_rows:
             impressions = int(imp_rows[0][0])
             ctr         = round(float(imp_rows[0][1]) * 100, 2)  # convert to %
-    except Exception:
-        pass  # impressions not available at the individual video level
+    except Exception as e:
+        body = ""
+        try:
+            body = impressions_resp.json()
+        except Exception:
+            pass
+        print(f"  ⚠️  Impressions unavailable for {video_id}: {e} | {body}")
 
     return {
         "views":               views,
