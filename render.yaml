@@ -1,0 +1,20 @@
+services:
+  - type: cron
+    name: youtube-performance-monitor
+    runtime: python
+    schedule: "0 16 * * 1"  # Monday 08:00 AM PT = 16:00 UTC
+    buildCommand: pip install -r requirements.txt
+    startCommand: python main.py
+    envVars:
+      - key: YOUTUBE_CLIENT_ID
+        sync: false
+      - key: YOUTUBE_CLIENT_SECRET
+        sync: false
+      - key: YOUTUBE_REFRESH_TOKEN
+        sync: false
+      - key: YOUTUBE_CHANNEL_ID
+        sync: false
+      - key: NOTION_API_KEY
+        sync: false
+      - key: NOTION_DATABASE_ID
+        sync: false
